@@ -228,7 +228,7 @@ if __name__ == "__main__":
         task_name=dm.task_name,
     )
 
-    checkpoint_callback = pl.callbacks.ModelCheckpoint( save_top_k=1, monitor='val_loss', mode='min')
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(save_top_k=5, monitor='val_loss', mode='min')
 
     trainer = Trainer(
         max_epochs=10,
