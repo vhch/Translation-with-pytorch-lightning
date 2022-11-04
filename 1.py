@@ -228,7 +228,7 @@ if __name__ == "__main__":
         task_name=dm.task_name,
     )
 
-    checkpoint_callback = pl.callbacks.ModelCheckpoint('{epoch:02d}_{val_loss:.4f}',
+    checkpoint_callback = pl.callbacks.ModelCheckpoint('lightning_logs',
                                                        save_top_k=1, monitor='val_loss', mode='min')
 
     trainer = Trainer(
@@ -236,6 +236,5 @@ if __name__ == "__main__":
         accelerator="gpu",
         devices=[0, 1, 2, 3] if torch.cuda.is_available() else None,  # limiting got iPython runs
         callbacks=checkpoint_callback,
-        check_val_every_n_epoch=1,
     )
     trainer.fit(model, datamodule=dm)
