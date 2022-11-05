@@ -191,6 +191,11 @@ class GLUETransformer(LightningModule):
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
 
+        if self.global_rank == 0:
+            # print(gathered)
+            loss = sum(output['loss'].mean() for output in gathered) / len(outputs)
+            print(loss.item())
+
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
         model = self.model
