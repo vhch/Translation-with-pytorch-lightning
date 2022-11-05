@@ -15,8 +15,9 @@ if __name__ == "__main__":
         n_gram=2,
         smooth=False,
         val_target_max_length=142,
-        num_beams=None,
+        num_beams=5,
         compute_generate_metrics=True,
+        load_weights=False,
     )
     dm = WMT16TranslationDataModule(
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']
@@ -30,7 +31,7 @@ if __name__ == "__main__":
         batch_size=24,
     )
 
-    trainer = pl.Trainer(accelerator="auto", devices=[0, 1, 2, 3], max_epochs=5, strategy='ddp')
+    trainer = pl.Trainer(accelerator="auto", devices=[0, 1, 2, 3], max_epochs=10, strategy='ddp')
     # trainer = pl.Trainer(accelerator="auto", devices=[0, 1, 2, 3], max_epochs=5, strategy='ddp', precision=16)
     # trainer = pl.Trainer(accelerator="gpu", devices=[0, 1], max_epochs=1, strategy='ddp')
     # trainer = pl.Trainer(accelerator="auto", devices=[0], max_epochs=1)
