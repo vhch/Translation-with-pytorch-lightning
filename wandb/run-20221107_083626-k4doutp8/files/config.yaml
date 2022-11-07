@@ -1,0 +1,88 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.13.5
+    framework: huggingface
+    huggingface_version: 4.24.0
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    m:
+    - 1: trainer/global_step
+      6:
+      - 3
+    - 1: train_loss
+      5: 1
+      6:
+      - 1
+    - 1: epoch
+      5: 1
+      6:
+      - 1
+    python_version: 3.9.15
+    start_time: 1667806586.22441
+    t:
+      1:
+      - 1
+      - 5
+      - 9
+      - 11
+      - 41
+      - 49
+      - 51
+      - 53
+      - 55
+      2:
+      - 1
+      - 5
+      - 9
+      - 11
+      - 41
+      - 49
+      - 50
+      - 51
+      - 53
+      - 55
+      3:
+      - 7
+      - 13
+      - 23
+      4: 3.9.15
+      5: 0.13.5
+      6: 4.24.0
+      8:
+      - 5
+compute_generate_metrics:
+  desc: null
+  value: true
+deepspeed_sharding:
+  desc: null
+  value: false
+downstream_model_type:
+  desc: null
+  value: AutoModelForSeq2SeqLM
+load_weights:
+  desc: null
+  value: false
+n_gram:
+  desc: null
+  value: 1
+num_beams:
+  desc: null
+  value: 4
+pipeline_kwargs:
+  desc: null
+  value: null
+pretrained_model_name_or_path:
+  desc: null
+  value: google/bert2bert_L-24_wmt_en_de
+smooth:
+  desc: null
+  value: false
+tokenizer:
+  desc: null
+  value: null
+val_target_max_length:
+  desc: null
+  value: 128

@@ -1,0 +1,24 @@
+{
+    "os": "Linux-4.15.0-126-generic-x86_64-with-glibc2.31",
+    "python": "3.9.15",
+    "heartbeatAt": "2022-11-07T07:34:01.762009",
+    "startedAt": "2022-11-07T07:34:00.976285",
+    "docker": null,
+    "gpu": "NVIDIA A100-SXM4-40GB",
+    "gpu_count": 8,
+    "cpu_count": 92,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/sj/test/1.py",
+    "codePath": "1.py",
+    "git": {
+        "remote": "https://github.com/vhch/test.git/",
+        "commit": "90579d5dbf1cd86c92dc535d9c5104b71403722d"
+    },
+    "email": "vhch66@gmail.com",
+    "root": "/sj/test",
+    "host": "7f2cc2d6892f",
+    "username": "root",
+    "executable": "/usr/bin/python"
+}
