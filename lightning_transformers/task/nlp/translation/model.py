@@ -42,24 +42,29 @@ class TranslationTransformer(Seq2SeqTransformer):
         downstream_model_type: Type[_BaseAutoModelClass] = transformers.AutoModelForSeq2SeqLM,
         n_gram: int = 4,
         smooth: bool = False,
+        lr: float = 2e-4,
+        warmup_steps: float = 0.01,
+        batch_size: int = 32,
         **kwargs,
     ) -> None:
         super().__init__(downstream_model_type, *args, **kwargs)
         self.bleu = None
         self.n_gram = n_gram
         self.smooth = smooth
+        self.lr = lr
+        self.warmup_steps = warmup_steps
 
     def compute_generate_metrics(self, batch, prefix):
         tgt_lns = self.tokenize_labels(batch["labels"])
         pred_lns = self.generate(batch["input_ids"], batch["attention_mask"])
         # wrap targets in list as score expects a list of potential references
-        result = self.bleu(preds=pred_lns, target=tgt_lns)
-        # result = torch.tensor(self.bleu.compute(predictions=pred_lns, references=tgt_lns)['bleu'])
+        # result = self.bleu(preds=pred_lns, target=tgt_lns)
+        result = self.bleu.compute(predictions=pred_lns, references=tgt_lns)['bleu']
         self.log(f"{prefix}_bleu_score", result, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
 
     def configure_metrics(self, stage: str):
-        self.bleu = BLEUScore(self.n_gram, self.smooth)
-        # self.bleu = evaluate.load("bleu")
+        # self.bleu = BLEUScore(self.n_gram, self.smooth)
+        self.bleu = evaluate.load("bleu")
 
     def initialize_model_specific_parameters(self):
         super().initialize_model_specific_parameters()
@@ -72,10 +77,10 @@ class TranslationTransformer(Seq2SeqTransformer):
                 self.model.config.decoder_start_token_id = self.tokenizer.lang_code_to_id[tgt_lang]
 
     def configure_optimizers(self) -> Dict:
-        optimizer = torch.optim.AdamW(self.parameters(), lr=2e-4)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
         num_training_steps, num_warmup_steps = self.compute_warmup(
             num_training_steps=-1,
-            num_warmup_steps=0.1,
+            num_warmup_steps=self.warmup_steps,
         )
         # scheduler = transformers.get_linear_schedule_with_warmup(
         scheduler = transformers.get_cosine_schedule_with_warmup(

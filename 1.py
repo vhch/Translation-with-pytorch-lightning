@@ -5,35 +5,44 @@ from lightning_transformers.task.nlp.translation import (
     WMT16TranslationDataModule,
 )
 from pytorch_lightning.loggers import WandbLogger
-# wandb_logger = WandbLogger(name='test-11-07', project='translation')
-wandb_logger = WandbLogger(project='translation')
+import argparse
+from datetime import datetime
+
+now = datetime.now()
+wandb_logger = WandbLogger(name=f'{now.date()}-bart', project='translation')
 
 
 if __name__ == "__main__":
-    # tokenizer = AutoTokenizer.from_pretrained(
-    #     pretrained_model_name_or_path="google/mt5-base"
-    # )
-    tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-b', '--batch', default=192, type=int,
+                        help='number of each process batch number')
+    args = parser.parse_args()
+
+    # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
+    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-base", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
     model = TranslationTransformer(
-        # pretrained_model_name_or_path="google/mt5-base",
-        pretrained_model_name_or_path="google/bert2bert_L-24_wmt_en_de",
-        n_gram=1,
+        # pretrained_model_name_or_path="google/bert2bert_L-24_wmt_en_de",
+        pretrained_model_name_or_path="facebook/bart-base",
+        n_gram=4,
         smooth=False,
-        val_target_max_length=128,
+        val_target_max_length=178,
         num_beams=4,
         compute_generate_metrics=True,
         load_weights=False,
+        lr=2e-4,
+        warmup_steps=0.01,
+        batch_size=args.batch
     )
     dm = WMT16TranslationDataModule(
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']
-        dataset_config_name="ro-en",
-        source_language="en",
-        target_language="ro",
+        dataset_config_name="de-en",
+        source_language="de",
+        target_language="en",
         max_source_length=128,
         max_target_length=128,
         padding="max_length",
         tokenizer=tokenizer,
-        batch_size=24,
+        batch_size=args.batch,
     )
 
     early_stop_callback = pl.callbacks.EarlyStopping(
@@ -44,20 +53,21 @@ if __name__ == "__main__":
         mode='min'
     )
 
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(save_top_k=5, monitor='val_loss', mode='min')
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(save_top_k=3, monitor='val_bleu_score', mode='max')
 
     trainer = pl.Trainer(
-        fast_dev_run=False,
+        # fast_dev_run=True,
         logger=wandb_logger,
         accelerator="auto",
         devices=[0, 1, 2, 3],
-        max_epochs=10,
+        max_epochs=100,
         strategy='ddp',
         precision=16,
         # limit_train_batches=0.05,
         callbacks=early_stop_callback,
     )
     trainer.fit(model, dm)
+    trainer.test(model, dm)
 
     # trainer = pl.Trainer(accelerator='gpu', devices=[0])
     # trainer.validate(model, dm)
