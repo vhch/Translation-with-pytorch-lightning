@@ -25,7 +25,7 @@ if __name__ == "__main__":
         pretrained_model_name_or_path="facebook/bart-base",
         n_gram=4,
         smooth=False,
-        val_target_max_length=178,
+        val_target_max_length=128,
         num_beams=4,
         compute_generate_metrics=True,
         load_weights=False,
@@ -61,10 +61,11 @@ if __name__ == "__main__":
         accelerator="auto",
         devices=[0, 1, 2, 3],
         max_epochs=100,
+        # strategy='ddp',
         strategy='ddp',
         precision=16,
         # limit_train_batches=0.05,
-        callbacks=early_stop_callback,
+        callbacks=[checkpoint_callback, early_stop_callback],
     )
     trainer.fit(model, dm)
     trainer.test(model, dm)
