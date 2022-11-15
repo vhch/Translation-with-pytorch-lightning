@@ -9,7 +9,7 @@ import argparse
 from datetime import datetime
 
 now = datetime.now()
-wandb_logger = WandbLogger(name=f'{now.date()}-bart', project='translation')
+wandb_logger = WandbLogger(name=f'{now.date()}-facebook/wmt19-de-en', project='translation')
 
 
 if __name__ == "__main__":
@@ -19,17 +19,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
-    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-base", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
+    tokenizer = AutoTokenizer.from_pretrained("facebook/wmt19-de-en")
     model = TranslationTransformer(
         # pretrained_model_name_or_path="google/bert2bert_L-24_wmt_en_de",
-        pretrained_model_name_or_path="facebook/bart-base",
-        n_gram=4,
-        smooth=False,
-        val_target_max_length=128,
-        num_beams=4,
+        pretrained_model_name_or_path="facebook/wmt19-de-en",
+        val_target_max_length=178,
+        num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=2e-4,
+        lr=1e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -60,12 +58,14 @@ if __name__ == "__main__":
         logger=wandb_logger,
         accelerator="auto",
         devices=[0, 1, 2, 3],
-        max_epochs=100,
+        max_epochs=1000,
         # strategy='ddp',
-        strategy='ddp',
+        strategy='deepspeed_stage_2',
         precision=16,
         # limit_train_batches=0.05,
-        callbacks=[checkpoint_callback, early_stop_callback],
+        # callbacks=[checkpoint_callback, early_stop_callback],
+        callbacks=[checkpoint_callback],
+        accumulate_grad_batches=8,
     )
     trainer.fit(model, dm)
     trainer.test(model, dm)
