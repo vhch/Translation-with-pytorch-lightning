@@ -77,7 +77,7 @@ class TranslationTransformer(Seq2SeqTransformer):
                 self.model.config.decoder_start_token_id = self.tokenizer.lang_code_to_id[tgt_lang]
 
     def configure_optimizers(self) -> Dict:
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-9, weight_decay=1e-2)
         num_training_steps, num_warmup_steps = self.compute_warmup(
             num_training_steps=-1,
             num_warmup_steps=self.warmup_steps,
