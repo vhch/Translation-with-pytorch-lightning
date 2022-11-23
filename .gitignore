@@ -132,3 +132,4 @@ lightning_logs/
 wandb/
 translation/
 false/
+translation-wmt14/
