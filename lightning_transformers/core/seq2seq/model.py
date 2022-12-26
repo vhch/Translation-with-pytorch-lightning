@@ -21,6 +21,12 @@ class Seq2SeqTransformer(TaskTransformer):
         self.should_compute_generate_metrics = compute_generate_metrics
 
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
+        # labels = batch['labels']
+        # outputs = self.model(**batch)
+        # logits = outputs[1]
+        # criterion = LabelSmoothingLoss(label_smoothing=0.1, tgt_vocab_size=50265)
+        # loss = criterion(logits.view(-1, 50265), labels.view(-1))
+        # self.log("train_loss", loss)
         outputs = self.model(**batch)
         loss = outputs[0]
         self.log("train_loss", loss)

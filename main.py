@@ -18,8 +18,8 @@ if __name__ == "__main__":
     parser.add_argument('-b', '--batch', default=128, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
-    # mname = "bbaaaa/myfork"
-    mname = "bbaaaa/myfork2"
+    mname = "bbaaaa/myfork"
+    # mname = "bbaaaa/myfork2"
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
     tokenizer = AutoTokenizer.from_pretrained(mname)
@@ -61,8 +61,8 @@ if __name__ == "__main__":
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
-        # devices=[0, 1, 2, 3],
-        devices=[4, 5, 6, 7],
+        devices=[0, 1, 2, 3],
+        # devices=[4, 5, 6, 7],
         max_epochs=100,
         # strategy='ddp',
         strategy='deepspeed_stage_2',
