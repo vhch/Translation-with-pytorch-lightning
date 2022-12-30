@@ -15,7 +15,7 @@ from tokenizers import Tokenizer
 tokenizer = Tokenizer.from_pretrained("facebook/bart-base")
 
 from tokenizers.trainers import BpeTrainer
-trainer = BpeTrainer(vocab_size=8000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
+trainer = BpeTrainer(vocab_size=37000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
 
 tokenizer.train_from_iterator(dataset['tokenizers'], trainer)
 

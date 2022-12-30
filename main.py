@@ -14,10 +14,12 @@ wandb_logger = WandbLogger(name=f'{now.date()}-bart-base', project='translation-
 
 
 if __name__ == "__main__":
+    pl.seed_everything(42)
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--batch', default=128, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
+
     mname = "bbaaaa/myfork"
     # mname = "bbaaaa/myfork2"
 
@@ -29,7 +31,8 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=5e-4,
+        # lr=5e-4,
+        lr=1e-3,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -44,6 +47,7 @@ if __name__ == "__main__":
         padding="max_length",
         tokenizer=tokenizer,
         batch_size=args.batch,
+        num_workers=24,
     )
 
     early_stop_callback = pl.callbacks.EarlyStopping(
@@ -63,21 +67,21 @@ if __name__ == "__main__":
         # accelerator="cpu",
         devices=[0, 1, 2, 3],
         # devices=[4, 5, 6, 7],
-        max_epochs=100,
+        max_epochs=13,
         # strategy='ddp',
         strategy='deepspeed_stage_2',
         precision=16,
         # limit_train_batches=0.05,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
-        accumulate_grad_batches=8,
+        # accumulate_grad_batches=8,
     )
 
     wandb_logger.watch(model, log="all")
 
     trainer.fit(model, dm)
     trainer.test(model, dm)
-    # trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/3nfrb4fc/checkpoints/epoch=24-step=27500.ckpt')
+    # trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/3nfrb4fc/checkpoints/epoch=38-step=42900.ckpt')
 
     # trainer = pl.Trainer(accelerator='gpu', devices=[0])
     # trainer.validate(model, dm)
