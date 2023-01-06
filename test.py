@@ -46,6 +46,7 @@ if __name__ == "__main__":
         padding="max_length",
         tokenizer=tokenizer,
         batch_size=args.batch,
+        num_workers=24,
     )
 
     early_stop_callback = pl.callbacks.EarlyStopping(
@@ -65,21 +66,21 @@ if __name__ == "__main__":
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
         devices=[4],
-        max_epochs=13,
+        max_epochs=100,
         # strategy='ddp',
         strategy='deepspeed_stage_2',
         # precision=16,
         # limit_train_batches=0.05,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
-        # accumulate_grad_batches=8,
+        accumulate_grad_batches=8,
     )
 
     wandb_logger.watch(model, log="all")
 
     # trainer.fit(model, dm)
     # trainer.test(model, dm)
-    trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/nus2fiyi/checkpoints/epoch=1-step=17614.ckpt')
+    trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/1s7ptfs4/checkpoints/epoch=81-step=90200.ckpt')
 
     # trainer = pl.Trainer(accelerator='gpu', devices=[0])
     # trainer.validate(model, dm)
