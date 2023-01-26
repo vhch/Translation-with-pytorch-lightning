@@ -10,7 +10,7 @@ from datetime import datetime
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base-batch512-0.01', project='translation-wmt14')
+wandb_logger = WandbLogger(name=f'bart-base-batch512-0.01', project='translation-iwslt14')
 
 
 if __name__ == "__main__":
