@@ -10,7 +10,7 @@ from datetime import datetime
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base-batch512-0.01', project='translation-wmt14')
+wandb_logger = WandbLogger(name=f'marianmt-batch512', project='translation-wmt14')
 
 
 if __name__ == "__main__":
@@ -20,7 +20,7 @@ if __name__ == "__main__":
                         help='number of each process batch number')
     args = parser.parse_args()
 
-    mname = "bbaaaa/myfork"
+    mname = "Helsinki-NLP/opus-mt-en-de"
     # mname = "bbaaaa/myfork2"
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=1e-3,
+        lr=5e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )

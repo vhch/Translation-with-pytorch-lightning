@@ -53,7 +53,8 @@ class Seq2SeqTransformer(TaskTransformer):
         max_length = self.val_target_max_length if self.val_target_max_length else self.model.config.max_length
         num_beams = self.num_beams if self.num_beams else self.model.config.num_beams
         generated_tokens = self.model.generate(
-                input_ids=input_ids, attention_mask=attention_mask, max_length=max_length, num_beams=num_beams
+                input_ids=input_ids, attention_mask=attention_mask, max_length=max_length, num_beams=num_beams,
+                length_penalty=0.6
         )
         # in case the batch is shorter than max length, the output should be padded
         if generated_tokens.shape[-1] < max_length:
