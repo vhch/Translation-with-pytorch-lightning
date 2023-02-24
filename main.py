@@ -10,7 +10,7 @@ from datetime import datetime
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-big-batch4096-epoch300', project='translation-wmt14')
+wandb_logger = WandbLogger(name=f'bart-base768-batch512-epoch100', project='translation-wmt14')
 
 
 if __name__ == "__main__":
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=3e-4,
+        lr=5e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -73,14 +73,14 @@ if __name__ == "__main__":
         devices=[0, 1, 2, 3],
         # devices=[4, 5, 6, 7],
         # max_epochs=15,
-        max_epochs=300,
+        max_epochs=100,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
         # limit_train_batches=0.05,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
-        accumulate_grad_batches=8,
+        # accumulate_grad_batches=8,
     )
 
     wandb_logger.watch(model, log="all")
