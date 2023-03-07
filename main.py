@@ -31,7 +31,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=5e-4,
+        lr=3e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -70,10 +70,10 @@ if __name__ == "__main__":
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
-        devices=[0, 1, 2, 3],
-        # devices=[4, 5, 6, 7],
+        # devices=[0, 1, 2, 3],
+        devices=[0, 1],
         # max_epochs=15,
-        max_epochs=100,
+        max_epochs=50,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
@@ -81,6 +81,7 @@ if __name__ == "__main__":
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
+        accumulate_grad_batches=2,
     )
 
     wandb_logger.watch(model, log="all")
