@@ -1,6 +1,6 @@
 from datasets import load_dataset
 
-dataset = load_dataset("wmt14", 'de-en', split='train')
+dataset = load_dataset("bbaaaa/iwslt14-de-en", 'de-en', split='train')
 
 def convert_to_features(
     examples
@@ -15,7 +15,7 @@ from tokenizers import Tokenizer
 tokenizer = Tokenizer.from_pretrained("facebook/bart-base")
 
 from tokenizers.trainers import BpeTrainer
-trainer = BpeTrainer(vocab_size=52000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
+trainer = BpeTrainer(vocab_size=8000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
 
 tokenizer.train_from_iterator(dataset['tokenizers'], trainer)
 
