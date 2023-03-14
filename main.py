@@ -10,13 +10,13 @@ from datetime import datetime
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch512-epoch50', project='translation-iwslt14')
+wandb_logger = WandbLogger(name=f'bart-base512-batch32-epoch20-de-en', project='translation-iwslt14')
 
 
 if __name__ == "__main__":
     pl.seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--batch', default=128, type=int,
+    parser.add_argument('-b', '--batch', default=16, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
 
@@ -38,8 +38,8 @@ if __name__ == "__main__":
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']
         dataset_name='bbaaaa/iwslt14-de-en',
         dataset_config_name="de-en",
-        source_language="en",
-        target_language="de",
+        source_language="de",
+        target_language="en",
         max_source_length=128,
         max_target_length=128,
         padding="max_length",
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         # devices=[0, 1, 2, 3],
         devices=[0, 1],
         # max_epochs=15,
-        max_epochs=50,
+        max_epochs=20,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
@@ -80,13 +80,13 @@ if __name__ == "__main__":
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
-        accumulate_grad_batches=2,
+        # accumulate_grad_batches=2,
     )
 
     wandb_logger.watch(model, log="all")
 
     trainer.fit(model, dm)
-    trainer.test(model, dm)
+    trainer.test(model, dm, ckpt_path='best')
     # trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/3nfrb4fc/checkpoints/epoch=38-step=42900.ckpt')
 
     # trainer = pl.Trainer(accelerator='gpu', devices=[0])
