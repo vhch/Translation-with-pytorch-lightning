@@ -7,16 +7,19 @@ from lightning_transformers.task.nlp.translation import (
 from pytorch_lightning.loggers import WandbLogger
 import argparse
 from datetime import datetime
+import torch
+
+torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch32-epoch20-de-en', project='translation-iwslt14')
+wandb_logger = WandbLogger(name=f'bart-base512-batch64-epoch100-de-en-dropout0.3', project='translation-iwslt14')
 
 
 if __name__ == "__main__":
     pl.seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--batch', default=16, type=int,
+    parser.add_argument('-b', '--batch', default=64, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
 
@@ -70,9 +73,9 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[0, 1],
+        devices=[1],
         # max_epochs=15,
-        max_epochs=20,
+        max_epochs=100,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
@@ -80,7 +83,6 @@ if __name__ == "__main__":
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
-        # accumulate_grad_batches=2,
     )
 
     wandb_logger.watch(model, log="all")
