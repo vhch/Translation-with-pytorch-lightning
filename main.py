@@ -13,13 +13,13 @@ torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch64-epoch100-de-en-dropout0.3', project='translation-iwslt14')
+wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-de-en-dropout0.3', project='translation-iwslt14')
 
 
 if __name__ == "__main__":
     pl.seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--batch', default=64, type=int,
+    parser.add_argument('-b', '--batch', default=128, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
 
