@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
 
 import torch
+import torch.nn.functional as F
 
 from lightning_transformers.core import TaskTransformer
 from lightning_transformers.core.seq2seq.utils import _pad_tensors_to_max_len
@@ -20,12 +21,33 @@ class Seq2SeqTransformer(TaskTransformer):
         self.num_beams = num_beams
         self.should_compute_generate_metrics = compute_generate_metrics
 
+    def compute_kl_loss(self, p, q, pad_mask=None):
+
+        p_loss = F.kl_div(F.log_softmax(p, dim=-1), F.softmax(q, dim=-1), reduction='none')
+        q_loss = F.kl_div(F.log_softmax(q, dim=-1), F.softmax(p, dim=-1), reduction='none')
+
+        # pad_mask is for seq-level tasks
+        if pad_mask is not None:
+            p_loss.masked_fill_(pad_mask, 0.)
+            q_loss.masked_fill_(pad_mask, 0.)
+
+        # You can choose whether to use function "sum" and "mean" depending on your task
+        p_loss = p_loss.sum()
+        q_loss = q_loss.sum()
+
+        loss = (p_loss + q_loss) / 2
+        return loss
+
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         labels = batch['labels']
-        outputs = self.model(**batch)
-        logits = outputs[1]
+        logtis = self.model(**batch)[1]
+        logtis2 = self.model(**batch)[1]
+
         criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
-        loss = criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1))
+        ce_loss = 0.5 * (criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1)) + criterion(logits2.view(-1, self.model.config.vocab_size), labels.view(-1)))
+        kl_loss = compute_kl_loss(logits, logits2)
+        loss = ce_loss + 1 * kl_loss
+
         self.log("train_loss", loss)
         # outputs = self.model(**batch)
         # loss = outputs[0]
