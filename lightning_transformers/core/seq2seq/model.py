@@ -22,7 +22,6 @@ class Seq2SeqTransformer(TaskTransformer):
         self.should_compute_generate_metrics = compute_generate_metrics
 
     def compute_kl_loss(self, p, q, pad_mask=None):
-
         p_loss = F.kl_div(F.log_softmax(p, dim=-1), F.softmax(q, dim=-1), reduction='none')
         q_loss = F.kl_div(F.log_softmax(q, dim=-1), F.softmax(p, dim=-1), reduction='none')
 
@@ -31,9 +30,9 @@ class Seq2SeqTransformer(TaskTransformer):
             p_loss.masked_fill_(pad_mask, 0.)
             q_loss.masked_fill_(pad_mask, 0.)
 
-        # You can choose whether to use function "sum" and "mean" depending on your task
-        p_loss = p_loss.sum()
-        q_loss = q_loss.sum()
+        # # You can choose whether to use function "sum" and "mean" depending on your task
+        p_loss = p_loss.mean()
+        q_loss = q_loss.mean()
 
         loss = (p_loss + q_loss) / 2
         return loss
@@ -43,11 +42,16 @@ class Seq2SeqTransformer(TaskTransformer):
         logits = self.model(**batch)[1]
         logits2 = self.model(**batch)[1]
 
-        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
-        ce_loss = 0.5 * (criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1)) + criterion(logits2.view(-1, self.model.config.vocab_size), labels.view(-1)))
-        kl_loss = self.compute_kl_loss(logits, logits2)
-        loss = ce_loss + 1 * kl_loss
+        logits = logits.view(-1, self.model.config.vocab_size)
+        logits2 = logits2.view(-1, self.model.config.vocab_size)
 
+        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
+        ce_loss = 0.5 * (criterion(logits, labels.view(-1)) + criterion(logits2, labels.view(-1)))
+        kl_loss = self.compute_kl_loss(logits, logits2)
+        loss = ce_loss + 5 * kl_loss
+
+        self.log("ce_loss", ce_loss)
+        self.log("kl_loss", kl_loss)
         self.log("train_loss", loss)
         # outputs = self.model(**batch)
         # loss = outputs[0]
