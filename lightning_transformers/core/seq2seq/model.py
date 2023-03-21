@@ -40,12 +40,12 @@ class Seq2SeqTransformer(TaskTransformer):
 
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         labels = batch['labels']
-        logtis = self.model(**batch)[1]
-        logtis2 = self.model(**batch)[1]
+        logits = self.model(**batch)[1]
+        logits2 = self.model(**batch)[1]
 
         criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
         ce_loss = 0.5 * (criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1)) + criterion(logits2.view(-1, self.model.config.vocab_size), labels.view(-1)))
-        kl_loss = compute_kl_loss(logits, logits2)
+        kl_loss = self.compute_kl_loss(logits, logits2)
         loss = ce_loss + 1 * kl_loss
 
         self.log("train_loss", loss)
