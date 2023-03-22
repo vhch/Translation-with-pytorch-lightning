@@ -13,7 +13,7 @@ torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch256-epoch200-de-en-dropout0.3', project='translation-iwslt14')
+wandb_logger = WandbLogger(name=f'bart-base512-batch256-epoch100-de-en-dropout0.3', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
@@ -23,7 +23,7 @@ if __name__ == "__main__":
                         help='number of each process batch number')
     args = parser.parse_args()
 
-    mname = "bbaaaa/myfork2"
+    mname = "bbaaaa/transformer_iwslt_de_en"
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
     tokenizer = AutoTokenizer.from_pretrained(mname)
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         # devices=[0, 1, 2, 3],
         devices=[2],
         # max_epochs=15,
-        max_epochs=200,
+        max_epochs=100,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
