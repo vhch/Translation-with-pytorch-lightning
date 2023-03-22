@@ -31,8 +31,8 @@ class Seq2SeqTransformer(TaskTransformer):
             q_loss.masked_fill_(pad_mask, 0.)
 
         # # You can choose whether to use function "sum" and "mean" depending on your task
-        p_loss = p_loss.mean()
-        q_loss = q_loss.mean()
+        p_loss = p_loss.sum()
+        q_loss = q_loss.sum()
 
         loss = (p_loss + q_loss) / 2
         return loss
