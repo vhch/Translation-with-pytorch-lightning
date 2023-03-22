@@ -130,8 +130,9 @@ dmypy.json
 
 lightning_logs/
 wandb/
-translation/
+translation*/
 false/
 translation-wmt14/
 translation-iwslt14/
 translation-iwslt14-rdrop/
+translation-iwslt14-transformersmall/
