@@ -33,7 +33,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=3e-4,
+        lr=1e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[3],
+        devices=[2],
         # max_epochs=15,
         max_epochs=100,
         strategy='ddp',

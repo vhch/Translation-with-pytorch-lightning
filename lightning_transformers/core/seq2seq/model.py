@@ -39,17 +39,36 @@ class Seq2SeqTransformer(TaskTransformer):
         loss = (p_loss + q_loss) / 2
         return loss
 
+    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
+        labels = batch['labels']
+        logits = self.model(**batch)[1]
+        logits2 = self.model(**batch)[1]
+
+        p = logits.view(-1, self.model.config.vocab_size)
+        q = logits2.view(-1, self.model.config.vocab_size)
+
+        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
+        ce_loss = 0.5 * (criterion(p, labels.view(-1)) + criterion(q, labels.view(-1)))
+        kl_loss = self.compute_kl_loss(logits, logits2)
+        loss = ce_loss + 0.1 * kl_loss
+
+        self.log("ce_loss", ce_loss)
+        self.log("kl_loss", kl_loss)
+        self.log("train_loss", loss)
+        # outputs = self.model(**batch)
+        # loss = outputs[0]
+        # self.log("train_loss", loss)
+        return loss
+
     # def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
     #     labels = batch['labels']
     #     logits = self.model(**batch)[1]
-    #     logits2 = self.model(**batch)[1]
-    #
-    #     p = logits.view(-1, self.model.config.vocab_size)
-    #     q = logits2.view(-1, self.model.config.vocab_size)
+    #     print(logits.shape)
+    #     p, q = torch.split(logits, 64, dim=0)
     #
     #     criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
-    #     ce_loss = 0.5 * (criterion(p, labels.view(-1)) + criterion(q, labels.view(-1)))
-    #     kl_loss = self.compute_kl_loss(logits, logits2)
+    #     ce_loss = criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1))
+    #     kl_loss = self.compute_kl_loss(p, q)
     #     loss = ce_loss + 5 * kl_loss
     #
     #     self.log("ce_loss", ce_loss)
@@ -59,25 +78,6 @@ class Seq2SeqTransformer(TaskTransformer):
     #     # loss = outputs[0]
     #     # self.log("train_loss", loss)
     #     return loss
-
-    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
-        labels = batch['labels']
-        logits = self.model(**batch)[1]
-        print(logits.shape)
-        p, q = torch.split(logits, 64, dim=0)
-
-        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
-        ce_loss = criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1))
-        kl_loss = self.compute_kl_loss(p, q)
-        loss = ce_loss + 5 * kl_loss
-
-        self.log("ce_loss", ce_loss)
-        self.log("kl_loss", kl_loss)
-        self.log("train_loss", loss)
-        # outputs = self.model(**batch)
-        # loss = outputs[0]
-        # self.log("train_loss", loss)
-        return loss
 
     def common_step(self, prefix: str, batch: Any) -> torch.Tensor:
         outputs = self.model(**batch)
