@@ -130,7 +130,7 @@ dmypy.json
 
 lightning_logs/
 wandb/
-translation/
+translation*/
 false/
 translation-wmt14/
 translation-iwslt14/
