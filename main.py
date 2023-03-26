@@ -13,7 +13,7 @@ torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-de-en-dropout0.3-lr3e-4', project='translation-iwslt14')
+wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-de-en-dropout0.3-lr3e-4-lengthpenalty1.0', project='translation-iwslt14')
 
 
 if __name__ == "__main__":
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     trainer.fit(model, dm)
     trainer.test(model, dm, ckpt_path='best')
-    # trainer.test(model, dm, ckpt_path='/sj/test/translation-wmt14/3nfrb4fc/checkpoints/epoch=38-step=42900.ckpt')
+    # trainer.test(model, dm, ckpt_path='/sj/test/translation-iwslt14/oo6av5g5/checkpoints/epoch=92-step=124806.ckpt')
 
     # trainer = pl.Trainer(accelerator='gpu', devices=[0])
     # trainer.validate(model, dm)
