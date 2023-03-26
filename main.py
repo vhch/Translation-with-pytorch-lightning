@@ -13,7 +13,7 @@ torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-de-en-dropout0.3-sum', project='translation-iwslt14-rdrop')
+wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-de-en-dropout0.3-batchmean-a=1', project='translation-iwslt14-rdrop')
 
 
 if __name__ == "__main__":
@@ -33,9 +33,10 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=1e-4,
+        lr=3e-4,
         warmup_steps=0.01,
-        batch_size=args.batch
+        batch_size=args.batch,
+        tokenizer=tokenizer,
     )
     dm = WMT16TranslationDataModule(
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']

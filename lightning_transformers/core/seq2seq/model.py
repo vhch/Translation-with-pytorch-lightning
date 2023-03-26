@@ -22,6 +22,7 @@ class Seq2SeqTransformer(TaskTransformer):
         self.num_beams = num_beams
         self.should_compute_generate_metrics = compute_generate_metrics
         self.batch_size = batch_size
+        self.padding_idx = self.tokenizer.pad_token_id
 
     def compute_kl_loss(self, p, q, pad_mask=None):
         p_loss = F.kl_div(F.log_softmax(p, dim=-1), F.softmax(q, dim=-1), reduction='none')
@@ -29,12 +30,14 @@ class Seq2SeqTransformer(TaskTransformer):
 
         # pad_mask is for seq-level tasks
         if pad_mask is not None:
-            p_loss.masked_fill_(pad_mask, 0.)
-            q_loss.masked_fill_(pad_mask, 0.)
+            p_loss.masked_fill_(pad_mask, 0.0)
+            q_loss.masked_fill_(pad_mask, 0.0)
 
         # # You can choose whether to use function "sum" and "mean" depending on your task
-        p_loss = p_loss.sum()
-        q_loss = q_loss.sum()
+        # p_loss = p_loss.mean()
+        # q_loss = q_loss.mean()
+        p_loss = p_loss.sum() / p.size(0)
+        q_loss = q_loss.sum() / q.size(0)
 
         loss = (p_loss + q_loss) / 2
         return loss
@@ -46,38 +49,17 @@ class Seq2SeqTransformer(TaskTransformer):
 
         p = logits.view(-1, self.model.config.vocab_size)
         q = logits2.view(-1, self.model.config.vocab_size)
+        pad_mask = labels.view(-1).unsqueeze(-1).eq(self.padding_idx)
 
         criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
         ce_loss = 0.5 * (criterion(p, labels.view(-1)) + criterion(q, labels.view(-1)))
-        kl_loss = self.compute_kl_loss(logits, logits2)
-        loss = ce_loss + 0.1 * kl_loss
+        kl_loss = self.compute_kl_loss(p, q, pad_mask)
+        loss = ce_loss + 1 * kl_loss
 
         self.log("ce_loss", ce_loss)
         self.log("kl_loss", kl_loss)
         self.log("train_loss", loss)
-        # outputs = self.model(**batch)
-        # loss = outputs[0]
-        # self.log("train_loss", loss)
         return loss
-
-    # def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
-    #     labels = batch['labels']
-    #     logits = self.model(**batch)[1]
-    #     print(logits.shape)
-    #     p, q = torch.split(logits, 64, dim=0)
-    #
-    #     criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
-    #     ce_loss = criterion(logits.view(-1, self.model.config.vocab_size), labels.view(-1))
-    #     kl_loss = self.compute_kl_loss(p, q)
-    #     loss = ce_loss + 5 * kl_loss
-    #
-    #     self.log("ce_loss", ce_loss)
-    #     self.log("kl_loss", kl_loss)
-    #     self.log("train_loss", loss)
-    #     # outputs = self.model(**batch)
-    #     # loss = outputs[0]
-    #     # self.log("train_loss", loss)
-    #     return loss
 
     def common_step(self, prefix: str, batch: Any) -> torch.Tensor:
         outputs = self.model(**batch)
