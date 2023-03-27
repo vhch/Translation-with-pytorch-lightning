@@ -54,7 +54,7 @@ class Seq2SeqTransformer(TaskTransformer):
         criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
         ce_loss = 0.5 * (criterion(p, labels.view(-1)) + criterion(q, labels.view(-1)))
         kl_loss = self.compute_kl_loss(p, q, pad_mask)
-        loss = ce_loss + 1 * kl_loss
+        loss = ce_loss + 10 * kl_loss
 
         self.log("ce_loss", ce_loss)
         self.log("kl_loss", kl_loss)
