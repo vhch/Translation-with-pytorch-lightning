@@ -34,10 +34,10 @@ class Seq2SeqTransformer(TaskTransformer):
             q_loss.masked_fill_(pad_mask, 0.0)
 
         # # You can choose whether to use function "sum" and "mean" depending on your task
-        # p_loss = p_loss.mean()
-        # q_loss = q_loss.mean()
-        p_loss = p_loss.sum() / p.size(0)
-        q_loss = q_loss.sum() / q.size(0)
+        p_loss = p_loss.sum()
+        q_loss = q_loss.sum()
+        # p_loss = p_loss.sum() / p.size(0)
+        # q_loss = q_loss.sum() / q.size(0)
 
         loss = (p_loss + q_loss) / 2
         return loss
@@ -51,10 +51,10 @@ class Seq2SeqTransformer(TaskTransformer):
         q = logits2.view(-1, self.model.config.vocab_size)
         pad_mask = labels.view(-1).unsqueeze(-1).eq(self.padding_idx)
 
-        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1)
+        criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1, reduction='sum', ignore_index=self.padding_idx)
         ce_loss = 0.5 * (criterion(p, labels.view(-1)) + criterion(q, labels.view(-1)))
         kl_loss = self.compute_kl_loss(p, q, pad_mask)
-        loss = ce_loss + 10 * kl_loss
+        loss = ce_loss + 5 * kl_loss
 
         self.log("ce_loss", ce_loss)
         self.log("kl_loss", kl_loss)

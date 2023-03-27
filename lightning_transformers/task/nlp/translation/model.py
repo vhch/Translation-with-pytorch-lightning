@@ -78,7 +78,7 @@ class TranslationTransformer(Seq2SeqTransformer):
 
     def configure_optimizers(self) -> Dict:
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-8, weight_decay=1e-2)
-        # optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        # optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-8, weight_decay=1e-2)
         num_training_steps, num_warmup_steps = self.compute_warmup(
             num_training_steps=-1,
             num_warmup_steps=self.warmup_steps,
