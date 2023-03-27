@@ -13,7 +13,7 @@ torch.set_num_threads(2)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'transformer_iwslt_de_en-batch128-epoch100-de-en-dropout0.3-lr3e-4-lengthpenalty1.0', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0.3-lr3e-4-lengthpenalty1.0-fairseqpreprocess', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     )
     dm = WMT16TranslationDataModule(
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']
-        dataset_name='bbaaaa/iwslt14-de-en',
+        dataset_name='bbaaaa/iwslt14-de-en-preprocess',
         dataset_config_name="de-en",
         source_language="de",
         target_language="en",
