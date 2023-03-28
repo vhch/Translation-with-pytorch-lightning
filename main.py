@@ -14,7 +14,7 @@ torch.set_num_threads(2)
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
 # wandb_logger = WandbLogger(name=f'bart-base512-batch128-epoch100-dropout0.3-batchmean-a=10-lengthpenalty1.0', project='translation-iwslt14-rdrop')
-wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0.3-sum-a=5-lengthpenalty1.0', project='translation-iwslt14-rdrop')
+wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0.3-sum-a=1-lengthpenalty1.0', project='translation-iwslt14-rdrop')
 
 
 if __name__ == "__main__":
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[3],
+        devices=[2],
         # max_epochs=15,
         max_epochs=100,
         strategy='ddp',
