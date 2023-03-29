@@ -2,7 +2,7 @@ from functools import partial
 from typing import Any, Callable, Optional, Tuple
 
 from datasets import Dataset
-from transformers import PreTrainedTokenizerBase, default_data_collator
+from transformers import PreTrainedTokenizerBase, default_data_collator, DataCollatorForSeq2Seq, PreTrainedModel
 
 from lightning_transformers.core import TransformerDataModule
 
@@ -16,11 +16,12 @@ class Seq2SeqDataModule(TransformerDataModule):
     """
 
     def __init__(
-        self, *args, max_target_length: int = 128, max_source_length: int = 1024, padding: str = "longest", **kwargs
+            self, *args, max_target_length: int = 128, max_source_length: int = 1024, padding: str = "longest", model: Optional[PreTrainedModel] = None, **kwargs
     ) -> None:
         super().__init__(*args, padding=padding, **kwargs)
         self.max_target_length = max_target_length
         self.max_source_length = max_source_length
+        self.model = model
 
     def process_data(self, dataset: Dataset, stage: Optional[str] = None) -> Dataset:
         src_text_column_name, tgt_text_column_name = self.source_target_column_names
@@ -72,4 +73,5 @@ class Seq2SeqDataModule(TransformerDataModule):
 
     @property
     def collate_fn(self) -> Callable:
-        return default_data_collator
+        # return default_data_collator
+        return DataCollatorForSeq2Seq(self.tokenizer, model=self.model)

@@ -15,8 +15,6 @@ from typing import Type, Dict
 
 import transformers
 import torch
-from torchmetrics.text.bleu import BLEUScore
-from torchmetrics.functional import bleu_score
 from transformers import MBartTokenizer
 from transformers.models.auto.auto_factory import _BaseAutoModelClass
 
@@ -60,14 +58,12 @@ class TranslationTransformer(Seq2SeqTransformer):
         pred_lns = self.generate(batch["input_ids"], batch["attention_mask"])
         # wrap targets in list as score expects a list of potential references
         # result = self.bleu(preds=pred_lns, target=tgt_lns)
-        # result = self.bleu.compute(predictions=pred_lns, references=tgt_lns)['bleu']
-        result = bleu_score(preds=pred_lns, target=tgt_lns)
+        result = self.bleu.compute(predictions=pred_lns, references=tgt_lns, tokenize='none')['score']
         self.log(f"{prefix}_bleu_score", result, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
 
     def configure_metrics(self, stage: str):
         # self.bleu = BLEUScore(self.n_gram, self.smooth)
-        # self.bleu = evaluate.load("bleu")
-        pass
+        self.bleu = evaluate.load("sacrebleu")
 
     def initialize_model_specific_parameters(self):
         super().initialize_model_specific_parameters()

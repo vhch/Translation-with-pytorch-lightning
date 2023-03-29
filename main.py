@@ -9,12 +9,14 @@ import argparse
 from datetime import datetime
 import torch
 from lightning.pytorch.profilers import AdvancedProfiler, PyTorchProfiler
+import os
 
 torch.set_num_threads(16)
-
+os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bartsmall-batch128-epoch100-dropout0.3-lr5e-4', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'bartsmall-batch128-epoch100-dropout0.3-lr3e-4', project='translation-iwslt14-transformersmall')
+# wandb_logger = WandbLogger(name=f'test', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
@@ -34,7 +36,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=5e-4,
+        lr=3e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -50,6 +52,7 @@ if __name__ == "__main__":
         tokenizer=tokenizer,
         batch_size=args.batch,
         num_workers=16,
+        model=model.model
     )
 
     early_stop_callback = pl.callbacks.EarlyStopping(
@@ -76,14 +79,14 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[3],
+        devices=[2],
         # max_epochs=100,
         max_epochs=100,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
         # limit_train_batches=0.01,
-        limit_val_batches=0.1,
+        limit_val_batches=0.05,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
@@ -94,4 +97,3 @@ if __name__ == "__main__":
 
     trainer.fit(model, dm)
     trainer.test(model, dm, ckpt_path='best')
-    # trainer.test(model, dm, ckpt_path='/sj/test/translation-iwslt14-transformersmall/aic5bszl/checkpoints/epoch=80-step=101412.ckpt')

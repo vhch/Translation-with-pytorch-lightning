@@ -67,5 +67,6 @@ class Seq2SeqTransformer(TaskTransformer):
         return pred_str
 
     def tokenize_labels(self, labels: torch.Tensor) -> List[str]:
+        labels = torch.where(labels != -100, labels, self.tokenizer.pad_token_id)
         label_str = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
         return [str.strip(s) for s in label_str]
