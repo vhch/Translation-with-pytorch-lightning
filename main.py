@@ -8,12 +8,13 @@ from pytorch_lightning.loggers import WandbLogger
 import argparse
 from datetime import datetime
 import torch
+from lightning.pytorch.profilers import AdvancedProfiler, PyTorchProfiler
 
-torch.set_num_threads(2)
+torch.set_num_threads(16)
 
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0.3-lr3e-4-lengthpenalty1.0-fairseqpreprocess', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'bartsmall-batch128-epoch100-dropout0.3-lr5e-4', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=3e-4,
+        lr=5e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
@@ -48,7 +49,7 @@ if __name__ == "__main__":
         padding="max_length",
         tokenizer=tokenizer,
         batch_size=args.batch,
-        # num_workers=12,
+        num_workers=16,
     )
 
     early_stop_callback = pl.callbacks.EarlyStopping(
@@ -67,29 +68,30 @@ if __name__ == "__main__":
         # every_n_train_steps=2000,
     )
 
+    profiler = AdvancedProfiler(dirpath=".", filename="perf_logs")
+    profiler = PyTorchProfiler(dirpath=".", filename="perf_logs")
     trainer = pl.Trainer(
         # fast_dev_run=True,
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[1],
-        # max_epochs=15,
+        devices=[3],
+        # max_epochs=100,
         max_epochs=100,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
-        # limit_train_batches=0.05,
+        # limit_train_batches=0.01,
+        limit_val_batches=0.1,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
+        # profiler=profiler
     )
 
     wandb_logger.watch(model, log="all")
 
     trainer.fit(model, dm)
     trainer.test(model, dm, ckpt_path='best')
-    # trainer.test(model, dm, ckpt_path='/sj/test/translation-iwslt14-transformersmall/w6wvc8fy/checkpoints/epoch=77-step=104676.ckpt')
-
-    # trainer = pl.Trainer(accelerator='gpu', devices=[0])
-    # trainer.validate(model, dm)
+    # trainer.test(model, dm, ckpt_path='/sj/test/translation-iwslt14-transformersmall/aic5bszl/checkpoints/epoch=80-step=101412.ckpt')
