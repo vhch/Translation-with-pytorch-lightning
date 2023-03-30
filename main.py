@@ -15,8 +15,8 @@ torch.set_num_threads(16)
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'bartsmall-batch128-epoch100-dropout0.3-lr3e-4', project='translation-iwslt14-transformersmall')
-# wandb_logger = WandbLogger(name=f'test', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0-lr5e-4', project='translation-iwslt14-transformersmall')
+# wandb_logger = WandbLogger(name=f'facebook/wmt19-de-en', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
@@ -27,6 +27,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     mname = "bbaaaa/transformer_iwslt_de_en"
+    # mname = "facebook/wmt19-de-en"
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
     tokenizer = AutoTokenizer.from_pretrained(mname)
@@ -71,15 +72,13 @@ if __name__ == "__main__":
         # every_n_train_steps=2000,
     )
 
-    profiler = AdvancedProfiler(dirpath=".", filename="perf_logs")
-    profiler = PyTorchProfiler(dirpath=".", filename="perf_logs")
     trainer = pl.Trainer(
         # fast_dev_run=True,
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[2],
+        devices=[3],
         # max_epochs=100,
         max_epochs=100,
         strategy='ddp',
@@ -97,3 +96,4 @@ if __name__ == "__main__":
 
     trainer.fit(model, dm)
     trainer.test(model, dm, ckpt_path='best')
+    # trainer.test(model, dm, ckpt_path='./translation-iwslt14-transformersmall/htpciga8/checkpoints/epoch=87-step=110176.ckpt')
