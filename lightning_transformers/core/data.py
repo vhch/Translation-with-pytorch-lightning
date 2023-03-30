@@ -178,6 +178,7 @@ class TransformerDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             collate_fn=self.collate_fn,
+            shuffle=True,
         )
 
     def val_dataloader(self) -> DataLoader:

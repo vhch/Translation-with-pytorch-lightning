@@ -15,7 +15,7 @@ torch.set_num_threads(16)
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'batch128-epoch100-dropout0-lr5e-4', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'vocabchange', project='translation-iwslt14-transformersmall')
 # wandb_logger = WandbLogger(name=f'facebook/wmt19-de-en', project='translation-iwslt14-transformersmall')
 
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         num_beams=5,
         compute_generate_metrics=True,
         load_weights=False,
-        lr=3e-4,
+        lr=5e-4,
         warmup_steps=0.01,
         batch_size=args.batch
     )
