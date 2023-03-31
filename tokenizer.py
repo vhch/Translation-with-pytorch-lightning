@@ -12,10 +12,10 @@ dataset = dataset.map(convert_to_features, batched=True)
 
 from tokenizers import Tokenizer
 # tokenizer = Tokenizer.from_file("tokenizer.json")
-tokenizer = Tokenizer.from_pretrained("facebook/bart-base")
+tokenizer = Tokenizer.from_pretrained("facebook/wmt19-de-en")
 
 from tokenizers.trainers import BpeTrainer
-trainer = BpeTrainer(vocab_size=12000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
+trainer = BpeTrainer(vocab_size=8000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here
 
 tokenizer.train_from_iterator(dataset['tokenizers'], trainer)
 

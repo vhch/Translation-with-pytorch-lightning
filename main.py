@@ -15,14 +15,14 @@ torch.set_num_threads(16)
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'vocabchange', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'epoch 300', project='translation-iwslt14-transformersmall')
 # wandb_logger = WandbLogger(name=f'facebook/wmt19-de-en', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
     pl.seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--batch', default=128, type=int,
+    parser.add_argument('-b', '--batch', default=256, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
 
@@ -78,9 +78,9 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[3],
+        devices=[0],
         # max_epochs=100,
-        max_epochs=100,
+        max_epochs=300,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,
