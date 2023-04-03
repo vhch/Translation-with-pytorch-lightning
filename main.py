@@ -16,9 +16,7 @@ CUDA_LAUNCH_BLOCKING=1
 torch.set_num_threads(16)
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
-# wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'no byte level epoch 100', project='translation-iwslt14-transformersmall')
-# wandb_logger = WandbLogger(name=f'facebook/wmt19-de-en', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'no byte level', project='translation')
 
 
 if __name__ == "__main__":
@@ -29,12 +27,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     mname = "facebook/mbart-large-cc25"
-    mname2 = "facebook/mbart-large-cc25"
-    # mname = "bbaaaa/fsmt"
-    # mname2 = "bbaaaa/transformer_iwslt_de_en"
 
-    # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
-    # tokenizer = AutoTokenizer.from_pretrained(mname2)
     tokenizer = AutoTokenizer.from_pretrained("facebook/mbart-large-cc25", src_lang="en_XX", tgt_lang="de_DE")
     model = TranslationTransformer(
         pretrained_model_name_or_path=mname,
@@ -82,23 +75,17 @@ if __name__ == "__main__":
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
-        # devices=[0, 1, 2, 3],
-        devices=[3],
-        # max_epochs=100,
-        max_epochs=5,
+        devices=[0, 1, 2, 3],
+        max_epochs=100,
         strategy='ddp',
-        # strategy='deepspeed_stage_2',
         precision=16,
-        # limit_train_batches=0.01,
         limit_val_batches=0.05,
         # callbacks=[checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback],
         # accumulate_grad_batches=8,
-        # profiler=profiler
     )
 
     wandb_logger.watch(model, log="all")
 
     trainer.fit(model, dm)
     trainer.test(model, dm, ckpt_path='best')
-    # trainer.test(model, dm, ckpt_path='./translation-iwslt14-transformersmall/htpciga8/checkpoints/epoch=87-step=110176.ckpt')
