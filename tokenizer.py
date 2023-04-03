@@ -1,18 +1,18 @@
 from datasets import load_dataset
 
-dataset = load_dataset("bbaaaa/iwslt14-de-en", 'de-en', split='train')
+dataset = load_dataset("bbaaaa/iwslt14-de-en-preprocess", 'de-en', split='train')
 
 def convert_to_features(
     examples
 ):
-    examples['tokenizers'] = [ex['de'] + ex['en'] for ex in examples["translation"]]
+    examples['tokenizers'] = [ex['de'] + ' ' + ex['en'] for ex in examples["translation"]]
     return examples
 
 dataset = dataset.map(convert_to_features, batched=True)
 
 from tokenizers import Tokenizer
 # tokenizer = Tokenizer.from_file("tokenizer.json")
-tokenizer = Tokenizer.from_pretrained("facebook/wmt19-de-en")
+tokenizer = Tokenizer.from_pretrained("flaubert/flaubert_base_cased")
 
 from tokenizers.trainers import BpeTrainer
 trainer = BpeTrainer(vocab_size=8000, special_tokens=["<s>", "<pad>", "</s>", "<unk>", "<mask>"])  # Adding [BOS] and [EOS] here

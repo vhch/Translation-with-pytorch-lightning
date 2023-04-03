@@ -20,7 +20,7 @@ from tokenizers.normalizers import NFD, Lowercase, StripAccents
 tokenizer.normalizer = normalizers.Sequence([NFD(), Lowercase(), StripAccents()])
 
 from tokenizers.trainers import BpeTrainer
-trainer = BpeTrainer(vocab_size=52000, special_tokens=["[BOS]", "[PAD]", "[EOS]", "[UNK]", "[MASK]"])  # Adding [BOS] and [EOS] here
+trainer = BpeTrainer(vocab_size=8000, special_tokens=["[BOS]", "[PAD]", "[EOS]", "[UNK]", "[MASK]"])  # Adding [BOS] and [EOS] here
 
 from tokenizers import pre_tokenizers
 from tokenizers.pre_tokenizers import Whitespace, ByteLevel

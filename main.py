@@ -11,34 +11,39 @@ import torch
 from lightning.pytorch.profilers import AdvancedProfiler, PyTorchProfiler
 import os
 
+CUDA_LAUNCH_BLOCKING=1
+
 torch.set_num_threads(16)
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 now = datetime.now()
 # wandb_logger = WandbLogger(name=f'{now.date()}-transformer-base', project='translation-wmt14')
-wandb_logger = WandbLogger(name=f'epoch 300', project='translation-iwslt14-transformersmall')
+wandb_logger = WandbLogger(name=f'no byte level epoch 100', project='translation-iwslt14-transformersmall')
 # wandb_logger = WandbLogger(name=f'facebook/wmt19-de-en', project='translation-iwslt14-transformersmall')
 
 
 if __name__ == "__main__":
     pl.seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--batch', default=256, type=int,
+    parser.add_argument('-b', '--batch', default=32, type=int,
                         help='number of each process batch number')
     args = parser.parse_args()
 
-    mname = "bbaaaa/transformer_iwslt_de_en"
-    # mname = "facebook/wmt19-de-en"
+    mname = "facebook/mbart-large-cc25"
+    mname2 = "facebook/mbart-large-cc25"
+    # mname = "bbaaaa/fsmt"
+    # mname2 = "bbaaaa/transformer_iwslt_de_en"
 
     # tokenizer = AutoTokenizer.from_pretrained("google/bert2bert_L-24_wmt_en_de", pad_token="<pad>", eos_token="</s>", bos_token="<s>", unk_token="<unk>")
-    tokenizer = AutoTokenizer.from_pretrained(mname)
+    # tokenizer = AutoTokenizer.from_pretrained(mname2)
+    tokenizer = AutoTokenizer.from_pretrained("facebook/mbart-large-cc25", src_lang="en_XX", tgt_lang="de_DE")
     model = TranslationTransformer(
         pretrained_model_name_or_path=mname,
         val_target_max_length=128,
         num_beams=5,
         compute_generate_metrics=True,
-        load_weights=False,
+        # load_weights=False,
         lr=5e-4,
-        warmup_steps=0.01,
+        warmup_steps=0.04,
         batch_size=args.batch
     )
     dm = WMT16TranslationDataModule(
@@ -78,9 +83,9 @@ if __name__ == "__main__":
         accelerator="auto",
         # accelerator="cpu",
         # devices=[0, 1, 2, 3],
-        devices=[0],
+        devices=[3],
         # max_epochs=100,
-        max_epochs=300,
+        max_epochs=5,
         strategy='ddp',
         # strategy='deepspeed_stage_2',
         precision=16,

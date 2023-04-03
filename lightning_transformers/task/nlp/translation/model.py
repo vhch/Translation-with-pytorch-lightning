@@ -56,6 +56,9 @@ class TranslationTransformer(Seq2SeqTransformer):
     def compute_generate_metrics(self, batch, prefix):
         tgt_lns = self.tokenize_labels(batch["labels"])
         pred_lns = self.generate(batch["input_ids"], batch["attention_mask"])
+        print("")
+        print("pred : ", pred_lns[0])
+        print("tgt : ", tgt_lns[0])
         # wrap targets in list as score expects a list of potential references
         # result = self.bleu(preds=pred_lns, target=tgt_lns)
         result = self.bleu.compute(predictions=pred_lns, references=tgt_lns, tokenize='none')['score']
@@ -77,7 +80,7 @@ class TranslationTransformer(Seq2SeqTransformer):
 
     def configure_optimizers(self) -> Dict:
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-8, weight_decay=1e-4)
-        # optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-8)
+        # optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.98), eps=1e-8, weight_decay=1e-4)
         num_training_steps, num_warmup_steps = self.compute_warmup(
             num_training_steps=-1,
             num_warmup_steps=self.warmup_steps,
