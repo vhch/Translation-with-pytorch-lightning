@@ -1,8 +1,8 @@
 # Translation with pytorch lighting
 
 # Requirements and Installation
-Python version = 3.7
-Pytorch = 1.13.1+cu117
+- Python version = 3.7  
+- Pytorch = 1.13.1+cu117
 
 `pip install -r requirements.txt`
 
