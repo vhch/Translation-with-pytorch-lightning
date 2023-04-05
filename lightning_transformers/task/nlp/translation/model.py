@@ -61,7 +61,7 @@ class TranslationTransformer(Seq2SeqTransformer):
         print("tgt : ", tgt_lns[0])
         # wrap targets in list as score expects a list of potential references
         # result = self.bleu(preds=pred_lns, target=tgt_lns)
-        result = self.bleu.compute(predictions=pred_lns, references=tgt_lns, tokenize='none')['score']
+        result = self.bleu.compute(predictions=pred_lns, references=tgt_lns)['score']
         self.log(f"{prefix}_bleu_score", result, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
 
     def configure_metrics(self, stage: str):
