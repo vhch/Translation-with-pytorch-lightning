@@ -26,15 +26,15 @@ if __name__ == "__main__":
                         help='number of each process batch number')
     parser.add_argument('-n', '--mname', default="facebook/mbart-large-cc25", type=str,
                         help='model name in huggingface')
-    parser.add_argument('-d', '--dataset', default="facebook/mbart-large-cc25", type=str,
-                        help='model name in huggingface')
+    parser.add_argument('-d', '--dataset', default="wmt14", type=str,
+                        help='dataset name in huggingface')
     args = parser.parse_args()
 
-    mname = args.mname
 
-    tokenizer = AutoTokenizer.from_pretrained("facebook/mbart-large-cc25", src_lang="en_XX", tgt_lang="de_DE")
+    tokenizer = AutoTokenizer.from_pretrained(args.mname, src_lang="en_XX", tgt_lang="de_DE")
+    # tokenizer = AutoTokenizer.from_pretrained(args.mname)
     model = TranslationTransformer(
-        pretrained_model_name_or_path=mname,
+        pretrained_model_name_or_path=args.mname,
         val_target_max_length=128,
         num_beams=5,
         compute_generate_metrics=True,
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     )
     dm = WMT16TranslationDataModule(
         # WMT translation datasets: ['cs-en', 'de-en', 'fi-en', 'ro-en', 'ru-en', 'tr-en']
-        dataset_name='bbaaaa/iwslt14-de-en-preprocess',
+        dataset_name=args.dataset,
         dataset_config_name="de-en",
         source_language="de",
         target_language="en",
@@ -79,7 +79,8 @@ if __name__ == "__main__":
         logger=wandb_logger,
         accelerator="auto",
         # accelerator="cpu",
-        devices=[0, 1, 2, 3],
+        # devices=[0, 1, 2, 3],
+        devices=[0],
         max_epochs=100,
         strategy='ddp',
         precision=16,
