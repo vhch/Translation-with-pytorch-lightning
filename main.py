@@ -24,9 +24,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--batch', default=32, type=int,
                         help='number of each process batch number')
+    parser.add_argument('-n', '--mname', default="facebook/mbart-large-cc25", type=str,
+                        help='model name in huggingface')
+    parser.add_argument('-d', '--dataset', default="facebook/mbart-large-cc25", type=str,
+                        help='model name in huggingface')
     args = parser.parse_args()
 
-    mname = "facebook/mbart-large-cc25"
+    mname = args.mname
 
     tokenizer = AutoTokenizer.from_pretrained("facebook/mbart-large-cc25", src_lang="en_XX", tgt_lang="de_DE")
     model = TranslationTransformer(
